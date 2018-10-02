@@ -16,7 +16,7 @@ Python Kipo KPG Library make it easy to stablish payment with kipo gateway.
 - [HTML Form to transfer user to KPG](#html-form-to-transfer-user-to-kpg)
 ---
 ### Installation
-Add KipoKPG.py and form.html to Your project
+Add KipoKPG.py and form.html to Your project or simply pip install kipo-kpg
 
 ### Quick Start and Examples
 Initial Kipo KPG and request shopping key from kipo server.
