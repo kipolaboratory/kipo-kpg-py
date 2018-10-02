@@ -166,9 +166,6 @@ class KipoKPG:
 
         response = json.loads(resp.text)
 
-        print(response)
-        exit()
-
         if response['Outcome'] == "0000":
             self.__referent_code = response['RawData']['ReferingID']
 
