@@ -16,7 +16,9 @@ Python Kipo KPG Library make it easy to stablish payment with kipo gateway.
 - [HTML Form to transfer user to KPG](#html-form-to-transfer-user-to-kpg)
 ---
 ### Installation
-Add KipoKPG.py and form.html to Your project or simply pip install kipo-kpg
+Add KipoKPG files to Your project
+or simply run 
+```pip install kipo-kpg```
 
 ### Quick Start and Examples
 Initial Kipo KPG and request shopping key from kipo server.
@@ -35,9 +37,9 @@ kipo = KipoKPG("YOUR MERCHANT KEY")
     Successful - {"status": True, "shopping_key": SHOPING_KEY}
     Failed - {"status": false, "message": ERROR_CODE]
 """
-kpg_initiate = kipo.kpg_initiate(AMOUNT, "YOUR CALLBACK URL")
+kpg_initiate = kipo.kpg_initiate(AMOUNT, 'YOUR CALLBACK URL')
 
-if kpg_initiate["status"]:
+if kpg_initiate['status']:
     """
         Store kpg_initiate["shopping_key"] to session to verfiy
         payment after user came back from gateway
@@ -46,7 +48,7 @@ if kpg_initiate["status"]:
         user to Kipo KPG Gateway (you can create this form manually
         where you want - form example is at the end of Quick Start
     """
-    kipo.render_form(kpg_initiate["shopping_key"])
+    kipo.render_form(kpg_initiate['shopping_key'])
 else:
     """
         Show error to user
