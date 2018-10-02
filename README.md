@@ -35,9 +35,9 @@ kipo = KipoKPG("YOUR MERCHANT KEY")
     Successful - {"status": True, "shopping_key": SHOPING_KEY}
     Failed - {"status": false, "message": ERROR_CODE]
 """
-kpg_initiate = kipo.kpg_initiate(AMOUNT, 'YOUR CALLBACK URL')
+kpg_initiate = kipo.kpg_initiate(AMOUNT, "YOUR CALLBACK URL")
 
-if kpg_initiate['status']:
+if kpg_initiate["status"]:
     """
         Store kpg_initiate["shopping_key"] to session to verfiy
         payment after user came back from gateway
@@ -46,7 +46,7 @@ if kpg_initiate['status']:
         user to Kipo KPG Gateway (you can create this form manually
         where you want - form example is at the end of Quick Start
     """
-    kipo.render_form(kpg_initiate['shopping_key'])
+    kipo.render_form(kpg_initiate["shopping_key"])
 else:
     """
         Show error to user
