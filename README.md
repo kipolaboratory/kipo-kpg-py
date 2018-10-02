@@ -79,3 +79,26 @@ kipo.get_shopping_key()
 # Get referent code after kpg_inquery called
 kipo.get_referent_code()
 ```
+
+### Properties
+```python
+""" 
+    URL of Kipo server - https://kpg.kipopay.com:8091/V1.0/processors/json/
+    This server create shopping key and 
+"""
+kipo.request_url
+
+"""
+    URL of Kipo KPG - http://webgate.kipopay.com/
+    Shopping key must post to this url with SK name
+"""
+kipo.kipo_webgate_url
+```
+
+### HTML Form to transfer user to KPG
+```html
+<form id="kipopay-gateway" method="post" action="KIPO_WEBGATE_URL" style="display: none;">
+    <input type="hidden" id="sk" name="sk" value="SHOPING_KEY"/>
+</form>
+<script language="javascript">document.forms['kipopay-gateway'].submit();</script>
+```
