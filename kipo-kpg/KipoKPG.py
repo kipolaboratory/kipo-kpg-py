@@ -204,7 +204,7 @@ class KipoKPG:
         f.write(html_form)
         f.close()
 
-        webbrowser.open_new_tab(html_form)
+        webbrowser.open_new_tab("form.html")
 
     """
         Retrieve to user shopping key property
