@@ -35,7 +35,7 @@ kipo = KipoKPG("YOUR MERCHANT KEY")
     Replace "YOUR CALLBACK URL" and "AMOUNT" with what you want
     kpg_initiate return a Dictionary 
     Successful - {"status": True, "shopping_key": SHOPING_KEY}
-    Failed - {"status": false, "message": ERROR_CODE]
+    Failed - {"status": false, "message": ERROR_CODE}
 """
 kpg_initiate = kipo.kpg_initiate(AMOUNT, 'YOUR CALLBACK URL')
 
