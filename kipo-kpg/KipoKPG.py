@@ -18,12 +18,7 @@ class KipoKPG:
     """
     __headers = {
         "Accept": "application/json",
-        "IP": "127.0.0.1",
-        "OS": "web",
-        "SC": "false",
-        "SK": "'.'",
         "Content-Type": "application/json",
-        "User-Agent": "kipopay-kpg-agent"
     }
 
     """
@@ -31,25 +26,7 @@ class KipoKPG:
 
         :var array
     """
-    __post_data = {
-        "Command": {
-            "Sign": ''
-        },
-        "OrderAt": '',
-        "OrderID": "100000",
-        "Profile": {
-            "HID": "+989901001001",
-            "SID": "00000000-0000-0000-0000-000000000000"
-        },
-        "Session": {
-            '': ''
-        },
-        "Version": {
-            "AID": "kipo1-alpha"
-        },
-        "RawData": {
-        }
-    }
+    __post_data = {}
 
     """
         Contain error code explanation
@@ -57,21 +34,29 @@ class KipoKPG:
         :var array
     """
     ERROR_MESSAGE = {
-        -1: "خطایی در داده‌های ارسالی وجود دارد،‌ لطفا اطلاعات را بررسی کنید و دوباره ارسال نمایید. (درخواست پرداخت)",
-        -2: "امکان برقراری ارتباط با سرور کیپو میسر نمی‌باشد.",
+        -1: ".خطایی در داده‌های ارسالی وجود دارد،‌ لطفا اطلاعات را بررسی کنید و دوباره ارسال نمایید. (درخواست پرداخت)",
+        -2: "خطایی در تحلیل داده‌های در سرور کیپو بوجود آمده است، دقایقی دیگر امتحان فرمایید.",
         -3: "امکان برقراری ارتباط با سرور کیپو میسر نمی‌باشد.",
         -4: "خطایی در داده‌های ارسالی وجود دارد،"
             "‌ لطفا اطلاعات را بررسی کنید و دوباره ارسال نمایید. (بررسی تایید پرداخت)",
-        -5: "پرداخت توسط کاربر لغو شده یا با مشکل مواجه شده است"
+        -5: "پرداخت توسط کاربر لغو شده یا با مشکل مواجه شده است",
+        -6: "شماره تماس فروشنده مورد نظر مورد تایید نمی‌باشد.",
+        -7: "حداقل مبلغ پرداخت 1,000 ریال می‌باشد.",
+        -8: "حداکثر مبلغ پرداخت 30,0000,000 ریال می‌باشد.",
+        -9: "شناسه پرداخت ارسالی مورد تایید نمی‌باشد."
     }
+
+    """
+    API Action urls
+    """
+    API_GENERATE_TOKEN = 'api/v1/token/generate'
+    API_VERIFY_TOKEN = 'api/v1/payment/verify'
 
     """
         Kipo server application url
 
         :var array
     """
-    request_url = "https://backend.kipopay.com/V1.0/processors/json/"
-    request_url_test = "https://kpg.kipopay.com:8091/V1.0/processors/json/"
 
     kipo_webgate_url = "http://webgate.kipopay.com/"
 
@@ -89,18 +74,17 @@ class KipoKPG:
         :param callback_url
         :return dict
     """
+
     def kpg_initiate(self, amount, callback_url):
-        post_data = self.__post_data
-        post_data["Command"]["Sign"] = "KPG@KPG/Initiate"
-        post_data["OrderAt"] = time.strftime("%Y%m%d%H%M%S")
-        post_data['RawData'] = {
-            "MerchantKy": self.merchant_key,
-            "Amount": amount,
-            "BackwardUrl": callback_url
+        self.__post_data = {
+            "merchant_mobile": self.merchant_key,
+            "payment_amount": amount,
+            "callback_url": callback_url
         }
 
         s = requests.Session()
-        req = requests.Request('POST', self.request_url, data=json.dumps(post_data), headers=self.__headers)
+        req = requests.Request('POST', self.kipo_webgate_url + self.API_GENERATE_TOKEN,
+                               data=json.dumps(self.__post_data), headers=self.__headers)
         prepped = req.prepare()
 
         try:
@@ -112,13 +96,14 @@ class KipoKPG:
         except:
             return {
                 "status": False,
-                "message": -3
+                "code": -3,
+                "message": self.get_error_message(-3),
             }
 
         response = json.loads(resp.text)
 
-        if response['Outcome'] == "0000":
-            shopping_key = response['RawData']['ShoppingKy']
+        if resp.status_code == 200:
+            shopping_key = response['payment_token']
             self.__shopping_key = shopping_key
 
             return {
@@ -129,7 +114,8 @@ class KipoKPG:
         else:
             return {
                 "status": False,
-                "message": -1
+                "code": -1,
+                "message": self.get_error_message(-1),
             }
 
     """
@@ -140,16 +126,15 @@ class KipoKPG:
         :param shopping_key
         :return dict
     """
+
     def kpg_inquery(self, shopping_key):
-        post_data = self.__post_data
-        post_data["Command"]["Sign"] = "KPG@KPG/Initiate"
-        post_data["OrderAt"] = time.strftime("%Y%m%d%H%M%S")
-        post_data['RawData'] = {
-            "ShoppingKy": shopping_key
+        self.__post_data = {
+            "payment_token": shopping_key
         }
 
         s = requests.Session()
-        req = requests.Request('POST', self.request_url, data=json.dumps(post_data), headers=self.__headers)
+        req = requests.Request('POST', self.kipo_webgate_url + self.API_VERIFY_TOKEN,
+                               data=json.dumps(self.__post_data), headers=self.__headers)
         prepped = req.prepare()
 
         try:
@@ -161,29 +146,34 @@ class KipoKPG:
         except:
             return {
                 "status": False,
-                "message": -3
+                "code": -3,
+                "message": self.get_error_message(-3),
             }
 
         response = json.loads(resp.text)
 
-        if response['Outcome'] == "0000":
-            self.__referent_code = response['RawData']['ReferingID']
+        if resp.status_code == 200:
 
-            if self.__referent_code is not None:
+            if 'referent_code' in response:
+                self.__referent_code = response['referent_code']
+
                 return {
                     "status": True,
-                    "referent_code": self.__referent_code
+                    "referent_code": self.__referent_code,
+                    "amount": response['payment_amount']
                 }
 
             return {
                 "status": False,
-                "message": -5
+                "code": -5,
+                "message": self.get_error_message(-5)
             }
 
         else:
             return {
                 "status": False,
-                "message": -4
+                "code": -4,
+                "message": self.get_error_message(-4)
             }
 
     """
@@ -192,6 +182,7 @@ class KipoKPG:
         
         :param shopping_key
     """
+
     def render_form(self, shopping_key):
         f = open('form.html', 'w')
         html_form = """
@@ -211,6 +202,7 @@ class KipoKPG:
         
         :return str
     """
+
     def get_shopping_key(self):
         return self.__shopping_key
 
@@ -219,6 +211,7 @@ class KipoKPG:
         
         :return str
     """
+
     def get_referent_code(self):
         return self.__referent_code
 
@@ -228,6 +221,7 @@ class KipoKPG:
         :param error_code
         :return mixed|None
     """
+
     def get_error_message(self, error_code):
         return_error = None
 
